@@ -1,0 +1,224 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW1</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW1</H1>
+
+Objectives:
+<UL>
+  <LI> Implement a shallow network that is capable of learning a
+       Boolean function.
+       <P>
+
+  <LI> Implement experiment control code that executes a single
+       instance of a learning run and stores the results in a pickle
+       file.
+       <P>
+
+  <LI> Use the supercomputer to execute a set of experiments.
+       <P>
+
+  <LI> Implement a tool that brings the results together from the
+       different experiments so they can be represented in a common
+       set of figures.
+<P>
+       
+</UL>
+<P>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline: Thursday, February 18th @11:59pm.  Solutions may be
+       submitted up to 48 hours late, with a 10% penalty for each 24
+       hours.
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, TensorFlow and Keras is okay, sharing
+       solution-specific code is inappropriate.  Likewise, you may not
+       download code solutions to this problem from the network. 
+       <P>
+
+</UL>
+
+<P>
+
+<P><HR><P>
+
+<H2>Class Github Repository</H2>
+The class gihub repository is available here:
+<A HREF="https://github.com/ahfagg/aml_2021.git">https://github.com/ahfagg/aml_2021.git</A>
+
+<P>
+
+An up-to-date copy is kept on OSCER at: /home/fagg/aml_2021
+<P>
+
+This repository contains:
+<UL>
+  <LI> Sample batch files (util)
+  <LI> Code for homework assignments (code)
+  <LI> Datasets for some of the homework assignments (datasets)
+</UL>
+<P>
+
+<P><HR><P>
+
+<H2>Data Set</H2>
+
+The dataset is available in the Github repository and is called
+<B>hw1_dataset.pkl</B>.  This file contains one python object, a
+dictionary, that has two keys: <B>ins</B> and <B>outs</B>.  The
+following code snippet will load the data into your python environment:
+
+<P>
+
+<PRE>
+fp = open("hw1_dataset.pkl", "rb")
+foo = pickle.load(fp)
+fp.close()
+</PRE>
+
+<P>
+Notes:
+<UL>
+  <LI> We have assumed that this file is in the same directory as
+your notebook.
+  <LI> There is only a training set (and no validation or test sets).
+  <LI> Take some time to examine the data.
+</UL>
+
+<P>
+
+
+<P><HR><P>
+<H2>Part 1: Network</H2>
+<UL>
+  <LI> 
+Write a function that constructs a relatively shallow neural network
+that can regenerate the output from the corresponding inputs.
+
+<P>
+  <LI> 
+       The first thing that you try will likely not work.  You will need to
+       think about the appropriate non-linearities to use and to play with the number
+       of layers and neurons.  
+       <P>
+
+  <LI> Once you have settled on an architecture that works well, then
+       proceed to the next part.
+       <P>
+
+</UL>
+
+
+<P>
+
+<P><HR><P>
+<H2>Part 2: Multiple Runs</H2>
+
+
+<UL>
+  <LI> Use the supercomputer to perform 10 independent learning runs.
+       <P>
+
+  <LI> Plot the learning curves (MSE as a function of epoch) for all
+       10 runs on the same figure.
+       <P>
+       
+  <LI> Compute the absolute prediction errors for all runs, combine
+       these data and generate a histogram of the absolute errors.
+       <P>
+
+</UL>
+
+<P>
+<P><HR><P>
+<H2>Hints</H2>
+
+<UL>
+  <LI> 
+       Once a model is trained, you can ask it to predict output values for a
+       set of examples using the <KBD>model.predict()</KBD> function
+       
+       <P>
+  <LI> 
+       Numpy provides an absolute value operator: <KBD>np.abs()</KBD>
+
+<P>
+
+  <LI> 
+       Matplotlib provides an easy way to generate histograms:
+<P>
+       <KBD>plt.hist(errors, 50)</KBD>
+       <P>
+
+       This generates a histogram with 50 bins
+<P>
+  <LI> A figure can be written to a file by Matplotlib:<P>
+
+       <KBD>plt.savefig('foo.png')</KBD>
+
+       <P>
+       will generate a PNG file of the specified name.
+       <P>
+
+       
+</UL>
+
+<P><HR><P>
+
+<H2>Expectations</H2>
+<UL>
+  <LI> Terminal MSE for the individual runs should be very low.  If
+       this is not the case, then go back to your network design.
+       <P>
+
+  <LI> It is very hard to learn a network that generates the correct
+       output for every example.  Getting a couple examples wrong in individual runs is okay.
+       <P>
+
+</UL>
+<P>
+
+<P><HR><P>
+
+<H2>What to Hand-In</H2>
+
+Submit a zip file to the HW1 section of Gradescope (enter via Canvas)
+that contains:
+
+<UL>
+
+  <LI> your python code, 
+  <LI> the learning curve figure, and
+  <LI> the histogram.
+</UL>
+
+<P>
+
+<H2>Grading</H2>
+<UL>
+  <LI> 40 pts: low MSE for every run
+  <LI> 20 pts: few prediction errors greater than 0.4
+  <LI> 20 pts: well structured code
+  <LI> 10 pts: appropriate documentation
+  <LI> 10 pts: figures are well formatted and have appropriate axis labels
+       <P>
+
+  <LI> 10 pts (bonus): all prediction errors less than 0.4
+</UL>
+
+<P><HR><P>
+
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Fri Feb 12 01:16:18 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
