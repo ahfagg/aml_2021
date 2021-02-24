@@ -1,0 +1,315 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW2</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW2</H1>
+
+<H2>Objectives</H2>
+
+<UL>
+  <LI> Implement a simple, shallow neural network that solves a
+       brain-machine interface prediction problem
+       <P>
+
+  <LI> Incorporate TF/Keras performance metrics into the model
+       evaluation process 
+<P>
+
+  <LI> Practice Holistic Cross-Validation for evaluating models
+       <P>
+
+  <LI> Use SLURM to perform a large batch of experiments
+       <P>
+  <LI> Implement code that brings the results from a large batch of
+       experiments into a single analysis
+       <P>
+
+</UL>
+
+
+<H2>Assignment Notes</H2>
+<UL>
+  <LI>  Deadline: Tuesday, March 2nd @11:59pm.
+       <P>
+  <LI> Hand-in procedure: submit a zip file to the HW2 dropbox on Gradescope.
+       <P>
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, TensorFlow and Keras is okay, sharing solution-specific code is inappropriate.
+       Likewise, you may not download code solutions to this problem from the network.  All code that we release may be used.
+       <P>
+
+</UL>
+
+<P>
+
+<P><HR><P>
+<H2>Data Set</H2>
+We are using the BMI data set that we discussed in class.  It is
+available on the supercomputer at:
+<PRE>
+/home/fagg/datasets/bmi/bmi_dataset.pkl
+</PRE>
+<P>
+
+This is a 220MB file - please do not make local copies of the file
+(you don't need to).  You are welcome to copy the file to other
+machines, if you wish.  Two requirements:
+<UL>
+  <LI> Large data transfers to/from OSCER should be done through the
+       host: dtn2.oscer.ou.edu
+       <P>
+
+  <LI> Please do not share this data set with others, and please
+       delete copies after the semester is over
+       <P>
+
+</UL>
+<P>
+
+The data set contains both neural and arm movement data (the latter
+being, theta, dtheta, ddtheta and torque).  In addition, there is a
+"time" channel that is a time stamp for each sample.  Arm movements
+are two degrees of freedom, corresponding to the shoulder and elbow, 
+respectively.  Each sample of the neural data already contains the
+history of each neuron over a 1 second period (20 samples at
+50ms/sample).  
+
+<P>
+
+The data are already partitioned into 20 folds for us.  Each fold
+contains multiple blocks of contiguous-time samples.  So, if one were
+to plot theta as a function of time, you would see the motion of the
+arm over time (with gaps).
+Across the folds, it is safe to assume that the data are independent
+of one-another.
+
+<P>
+
+
+<P><HR><P>
+<H2>Provided Code</H2>
+
+We are providing the following code:
+<UL>
+  <LI> <A HREF="../code/hw/hw2/hw2_base.py">hw2_base.py</A>.  This is the heart of the
+       BMI model implementation.  As such, it has a lot of features and
+       is rather complicated.  You may use it in its entirety, adapt
+       it to your needs, or ignore it all together.
+       <P>
+       
+       Features include:
+       
+       <UL>
+	 <LI> Accepts many different arguments for conducting an
+	      experiment, including accepting many hyper-parameters.
+	      Some hyper-parameters can be set by SLURM, allowing us to
+	      perform a large number of experiments with a single
+	      invocation of sbatch
+	      <P>
+	      
+	 <LI> From the BMI data set file, it will generate
+	      training/validation/testing data sets for a given
+	      rotation
+	      <P>
+
+	 <LI> High-level code for conducting an individual experiment
+	      and saving the results
+	      <P>
+
+       </UL>
+
+  <LI> <A HREF="../code/hw/hw2/symbiotic_metrics.py">symbiotic_metrics.py</A>: proper
+       Keras implementation of the fraction-of-variance-accounted-for
+       metric (FVAF).  This implementation computes FVAF for each
+       dimension independently.  
+       <P>
+       <UL>
+	 <LI> FVAF = 1 - MSE/VAR
+	      <BR>
+	      MSE is the mean squared prediction error
+	      <BR>
+	      VAR is the variance of the quantity being predicted
+	      <P>
+	      
+	 <LI> FVAF is related to the R-squared metric, but does not
+	      suffer from the over-fitting problem that R-squared has
+<P>
+
+	 <LI> FVAF <= 1
+	      <UL>
+		<LI> 1 -> perfect prediction
+		<LI> 0 -> no predictive power
+		<LI> < 0 -> predicts more variance than exists in the data
+	      </UL>
+	      <P>
+
+       </UL>
+
+ <LI> <A HREF="../code/hw/hw2/job_control.py">job_control.py</A>: This program makes it easy to iterate through all combinations of hyper parameters. 
+     The class translates a dictionary containing parameter/list pairs into a Cartesian product of all combinations
+     of possible parameter values stored in a list of dictionaries and enables indexed access to this list.
+       <P>
+
+</UL>
+
+
+<P><HR><P>
+<H2>Part 1: Network</H2>
+
+<UL>
+  <LI> Implement a function that constructs a neural network that can
+       predict arm state as a function of neural state.  The network
+       should be relatively shallow (you don't need a lot of
+       non-linearities to do reasonably well, here).  But, note that
+       quantities such as torque or velocity can be positive or
+       negative.  So, think carefully about what the output
+       nonlinearity should be
+       <P>
+  <LI> Do not take steps to address over-fitting (we will work on this
+       HW 3)
+       <P>
+
+  <LI> Arm state can be scalar (e.g., shoulder orientation) or a
+       vector (e.g., shoulder and elbow velocity)
+       <P>
+
+  <LI> Train a network to predict elbow torque as a
+       function of the neural state.  Useful FVAFs are: 0 < FVAF <= 1
+       <P>
+
+  <LI> 
+       Produce a figure that shows both the true torque and the
+       predicted torque as a function of the timestamp for the test fold.   
+       <P>
+
+</UL>
+
+<P><HR><P>
+<H2>Part 2: Multiple Runs</H2>
+
+<UL>
+  <LI> Use your code base to execute a batch of experiments on OSCER
+       <P>
+
+  <LI> The batch is a 2-dimensional grid: rotation (0...19) and number
+       of training folds (1,2,3,5,10,18).  Although single experiments
+       will have a short running time (2-4 minutes), each one needs to
+       be executed as a separate job on OSCER (we are preparing
+       ourselves for more extensive experiments)
+       <P>
+       
+  <LI> Implement a second program that executes on your local machine
+       and:
+       <UL>
+	 <LI> Loads all of the stored results
+	      <P>
+
+	 <LI> Computes average training/validation/testing FVAF for
+	      each training fold size (average across the rotations)
+	      <P>
+
+	 <LI> Generates a plot with three curves (one for each data
+	      set type): FVAF as a function of training set size
+	      <P>
+       </UL>
+       <P>
+
+</UL>
+
+<P>
+<H3>Hints</H3>
+
+<UL>
+  <LI> 
+There are lots of hints embedded in the provided code.  Take
+       the time to understand what is going on there.
+<P>
+  <LI> List comprehension is your friend
+    <P>
+
+</UL>
+
+<H3>Reading Results Files</H3>
+<PRE>
+import os
+
+def read_all_rotations(dirname, filebase):
+    '''Read results from dirname from files matching filebase'''
+
+    # The set of files in the directory
+    files = fnmatch.filter(os.listdir(dirname), filebase)
+    files.sort()
+    results = []
+
+    # Loop over matching files
+    for f in files:
+        fp = open("%s/%s"%(dirname,f), "rb")
+        r = pickle.load(fp)
+        fp.close()
+        results.append(r)
+    return results
+</PRE>
+
+<P>
+
+Example:
+<PRE>
+filebase = "bmi_torque_0_hidden_30_drop_0.50_ntrain_%02d_rot_*_results.pkl"
+results = read_all_rotations("results", filebase)
+</PRE>
+
+<P>
+will find all files that match this string (* is a wildcard here).
+<P>
+
+<P><HR><P>
+
+<H2>Expectations</H2>
+
+Think about what the curve shapes should look like before you
+       generate them.
+
+<P>
+
+<H2>Looking Forward</H2>
+For HW 3, we will be experimenting with deeper networks and with
+varying hyper-parameter choices.  As you write your code, think about
+how to structure it (and your results data structures) so that you can
+handle variations in other hyper-parameters.
+
+<P><HR><P>
+
+<H2>What to Hand-In</H2>
+
+<UL>
+  <LI> Submit a zip file containing python files, batch scripts, and 
+       Jupyter notebook (ipynb file, not pdf) to Gradescope.
+<P>
+  <LI> Do not submit MSWord files.
+</UL>
+<P>
+
+<H2>Grading</H2>
+<UL>
+  <LI> 20 pts: clean code for executing a single experiment (including
+       documentation)
+  <LI> 20 pts: True and predicted torque as a function of time
+  <LI> 20 pts: Executing on OSCER
+  <LI> 20 pts: clean code for bringing individual results files
+       together
+  <LI> 20 pts: Figure of FVAF as a function of training set size
+</UL>
+
+<P><HR><P>
+
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Tue Feb 23 21:54:55 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
