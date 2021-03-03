@@ -1,0 +1,183 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW3</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW3</H1>
+
+<H2>Objectives</H2>
+
+<UL>
+  <LI> Implement network architectures that use different forms of
+       regularization
+       <P>
+
+  <LI> Execute experiments in which we vary multiple
+       hyper-parameters
+
+       <P>
+
+  <LI> Practice Holistic Cross-Validation for evaluating models
+       <P>
+
+  <LI> Use SLURM to perform a large batch of experiments
+       <P>
+       
+  <LI> Implement code that brings the results from a large batch of
+       experiments into a single analysis
+       <P>
+
+</UL>
+
+
+<H2>Assignment Notes</H2>
+<UL>
+  <LI>  Deadline: Tuesday, March 9th @11:59pm.
+       <P>
+  <LI> Hand-in procedure: submit PDF to the HW3 dropbox on Gradescope.
+       <P>
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, TensorFlow and Keras is okay, sharing solution-specific code is inappropriate.
+       Likewise, you may not download code solutions to this problem
+       from the Internet. 
+       <P>
+
+</UL>
+
+<P>
+
+<P><HR><P>
+<H2>Data Set</H2>
+
+We will use the same data set as in HW2.  However, we will focus on
+predicting shoulder orientation (theta[0]). 
+
+<P>
+
+<P><HR><P>
+     <H2>Provided Code</H2>
+     
+     You should modify your code from HW2 to complete this assignment.
+     
+     <P>
+
+
+<P><HR><P>
+<H2>Part 1: Dropout</H2>
+
+<UL>
+  <LI> Implement a network with at least 5 hidden layers.
+       <P>
+
+  <LI> Add dropout to your Input layer and each of your Hidden
+       layers.  There should be no other regularization.
+       <P>
+
+  <LI> Execute a 3-dimensional experiment: rotation x training set size x
+       dropout rate.  Rotations and training folds are the same as in
+       HW2.  Attempt a reasonable range of dropout probabilities (at
+       least 4), including zero.  Note that for the zero probability
+       case, you should not include Dropout layers in your network.
+       <P>
+       
+  <LI> Write code that aggregates the results together, showing
+       validation FVAF as a function of training set size.  On the
+       same plot, show one 
+       curve for each of your dropout probability choices.
+       <P>
+
+  <LI> Don't forget to label your axes and to provide a legend.
+       <P>
+
+</UL>
+
+<P><HR><P>
+<H2>Part 2: Lx Regularization</H2>
+
+<UL>
+  <LI> Perform the same form of experiment as part 1, except choose a
+       range of values for either L1 or L2 regularization.  Include no
+       regularization, too (note that a regularization parameter of
+       zero does not seem to mean zero regularization, instead just
+       don't include regularization in your network).
+
+       <P>
+       There should be no Dropout here.
+       <P>
+       
+
+  <LI> Create a similar plot as above.
+       <P>
+       
+</UL>
+
+<P><HR><P>
+<H2>Part 3: Bake-Off</H2>
+<UL>
+  <LI> For both sets of runs (part 1 and part 2), you have already
+       computed mean FVAF across the rotations (the result for each
+       model is a matrix indexed by hyper-parameter value and training
+       set size). 
+       For models and each training set size, identify the
+       hyper-parameter value that maximizes validation performance (so,
+       each training set size will have one "best" hyper-parameter
+       value and corresponding model).
+       <P>
+       
+  <LI> For each best model, report the mean FVAF for the test sets
+       (again, this is mean across rotations).  Produce a figure that
+       shows test set FVAF as a function of training set size.  This
+       figure will have one curve for each model.
+       <P>
+
+</UL>
+
+<P>
+
+<P><HR><P>
+
+<H2>What to Hand-In</H2>
+
+<UL>
+  <LI> Hand in a single PDF that contains all pieces, including code, results figures, 
+       and batch scripts to Gradescope.
+<P>
+
+  Within Jupyter, you can generate a PDF by selecting File/Export
+       As/PDF.
+       <P>
+       Note: the PDF generator is not particularly smart about not
+       cutting off code on the right-hand-side of the PDF page.  Check
+       your PDF and if this is happening, then add newlines to make
+       your lines shorter.
+       <P>
+
+  <LI> Do not submit MSWord files.
+       
+</UL>
+<P>
+
+<H2>Grading</H2>
+<UL>
+  <LI> 20 pts: Clean code for part 1 and part 2 (including
+       documentation)
+  <LI> 20 pts: Figure: Validation set performance with varying Dropout rate
+  <LI> 20 pts: Figure: Validation set performance with varying Lx
+       regularization parameter value
+  <LI> 20 pts: Clean code for selecting the best model 
+  <LI> 20 pts: Figure: Test set performance for the best
+       hyper-parameter choices for each model
+</UL>
+
+<P><HR><P>
+
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Tue Mar  2 23:00:06 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
