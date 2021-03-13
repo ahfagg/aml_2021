@@ -1,0 +1,389 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW4</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW4: Convolutional Neural Networks</H1>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline: Friday, March 26th @11:59pm.
+       <P>
+       
+  <LI> Hand-in procedure: submit to a pdf to Gradescope
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, Keras and Tensorflow is encouraged, sharing
+       solution-specific code is inappropriate.  Likewise, downloading
+       solution-specific code is not allowed. 
+       <P>
+       
+  <LI> Do not submit MSWord documents.<P>
+
+</UL>
+
+
+<H2>Data Set</H2>
+
+The <A HREF="https://vlomonaco.github.io/core50/">Core50</A> data set
+is a large database of videos of objects as they are being
+moved/rotated under a variety of different lighting and background
+conditions.  Our general task is to classify the object being shown in a
+<B>single</B> frame of one of these videos.
+
+<P>
+
+<IMG SRC="https://vlomonaco.github.io/core50/imgs/classes.gif">
+
+<P>
+
+<H3>Data Organization</H3>
+<UL>
+  <LI> A subset of the database is available on OSCER:
+       /home/fagg/datasets/core50
+       <P>
+
+  <LI> The database is partitioned into different conditions (s1, s2,
+       ...) 
+<P>
+
+  <LI> Within the condition, you will find scissors (o11 ... o15), mugs
+       (o41 .. o45), and glasses (o26 ... o30) each contained within their own directory
+<P>
+
+  <LI> Within each object directory is a sequence of PNG files.  The
+       last number of the file name is the image sequence number
+<P>
+
+  <LI> Each image is 128 x 128 in size and is color (Red, Green, Blue channels)
+       <P>
+
+</UL>
+
+<P><HR><P>
+
+<H2>Provided Code</H2>
+
+We are providing the following code (posted in the git repository):
+<UL>
+  <LI> <B>hw4_base.py</B>: An experiment-execution module.  Parameter
+       organization, loading data, executing experiment, saving
+       results
+       <P>
+
+  <LI> <B>hw4_post_support.py</B>: Generation of visualizations.
+       <P>
+       
+  <LI> <B>hw4_post.ipynb</B>: Notebook that gives examples of using hw4_post_support
+       <P>
+
+  <LI> <B>metrics.py</B>: This code contains a function to generate a confusion matrix
+     and a function to calculate multiclass AUC (see the experiments section for more info).
+       <P>
+
+</UL>
+
+
+<P><HR><P>
+
+
+
+<H2>Prediction Problem</H2>
+
+We will focus on the distinction between mugs, scissors, and glasses, for which we
+only have five distinct example objects (though, for each, we have many
+different perspectives and conditions).  Our goal is to construct a
+model that will be generally applicable: ideally, it will be able to
+distinguish between <B>any</B> mug, <B>any</B> pair of scissors, and <B>any</B> glasses.  However,
+given the small number of objects, this is a challenge.  For the
+purposes of this assignment, we will use four objects from each class
+for training and one distinct object from each class for validation
+(there won't be an independent test set).  For rotation 0:
+
+<P>
+
+<UL>
+  <LI> Training class 1 (scissors): objects o11-o14
+  <LI> Training class 2 (mugs): o41-o44
+  <LI> Training class 3 (glasses): objects o26-o29
+
+  <LI> Validation class 1: object o15
+  <LI> Validation class 2: object o45
+  <LI> Validation class 3: object o30
+       <P>
+
+  <LI> Conditions for both training and validation:
+<PRE>
+       condition_list = ['s1', 's2', 's3', 's4', 's5', 's7', 's8', 's9', 's10', 's11']
+       </PRE>
+  <LI> We suggest using images only ending in zero (so, every 10th
+       image)
+       <P>
+
+</UL>
+
+
+<P><HR><P>
+<H2>Architectures</H2>
+
+You will create two convolutional neural networks to distinguish the mug, scissors, 
+and glasses: one will be a shallow network and the other will be a deep
+network.  Each will nominally have the following structure:
+
+<UL>
+ <LI> One or more convolutional filters, each (possibly) followed by a
+      max pooling layer.
+      <UL>
+	<LI> Use your favorite activation function
+	<LI> In most cases, each conv/pooling layer will involve some
+	     degree of size reduction (striding)
+	<LI> Convolutional filters should not be larger than 5x5
+	     (as the size of the filter gets larger, the memory
+	     requirements explode)
+      </UL>
+      <P>
+
+ <LI> Flatten
+<P>
+
+ <LI> One or more dense layers
+      <UL>
+	<LI>  Choose your favorite activation function
+      </UL>
+<P>
+
+ <LI> One output layer with three units (one for each class).  The
+      activation for this layer should be <B>softmax</B>
+      <P>
+ <LI> Loss: categorical cross-entropy
+ <LI> Additional metric: categorical accuracy
+</UL>
+
+
+<P>
+
+Since the data set is relatively small, it is important to take steps to
+address the over-fitting problem.  Here are the key tools that you have:
+
+<UL>
+  <LI> Use as large a training set as possible (gives us variety),
+       but use stochastic mini-batches to reduce the computation for a
+       single training epoch step.
+       <P>
+       
+  <LI> Regularization
+       <P>
+       
+  <LI> Dropout.  Only use dropout with Dense layers
+       <P>
+       
+  <LI> Try to keep the number of trainable parameters small
+       <P>
+</UL>
+
+
+
+<P><HR><P>
+<H2>Experiments</H2>
+<UL>
+  <LI> You will spend some time informally narrowing down the details of your two
+       architectures, including the hyper-parameters (layer sizes,
+       dropout, regularization)
+       <P>
+
+  <LI> Once you have made your choice of "best" architecture for each,
+       you will perform five rotation for each model (so, a total of
+       10 independent runs)
+       <P>
+
+  <LI> For each, generate two figures:
+       <UL>
+	 <LI> Learning curves (validation accuracy as a function of
+	      epoch).  Put all five curves on a single plot
+	      
+	 <LI> Confusion matrix for each of the validation rotation predictions. There should be 5
+           confusion matrices for each of your models. Sample code for generating confusion matrices
+           is provided.
+	      
+       </UL>
+       <P>
+  <LI> Compute mean multiclass AUC across the five rotations. Multiclass AUC is calculated by
+       calculating the average AUC of the ROC curve for each pair of classes in multiclass classification.
+       In our case, there will be three pairs used to calculate mean AUC: scissors vs mugs, scissors vs glasses, and mugs vs glasses.
+       We have provided code to compute multiclass AUC in the metrics.py file.
+       <P>
+<P>
+       
+
+</UL>
+
+<P><HR><P>
+<H2>Training with Mini-Batches</H2>
+
+Loading 3 object classes x 4 object instances x 10 conditions x 30 images makes for a fairly large
+training set.  As we have discussed, when we have such large training
+sets, especially when there is a lot of autocorrelation between the
+examples, we can get away with estimating the gradient using a small
+subset of the training set.  To do this, we will use a python
+<B>generator</B> to produce a mini-batch of training samples for every
+training epoch.
+<P>
+There is a variety of ways to implement the generator.  Here is one
+example that chooses a random subset of samples for every epoch:
+
+<PRE>
+def training_set_generator_images(ins, outs, batch_size=10,
+                          input_name='input', 
+                        output_name='output'):
+    '''
+    Generator for producing random mini-batches of image training samples.
+    
+    :param ins: Full set of training set inputs (examples x row x col x chan)
+    :param outs: Corresponding set of sample (examples x nclasses)
+    :param batch_size: Number of samples for each minibatch
+    :param input_name: Name of the model layer that is used for the input of the model
+    :param output_name: Name of the model layer that is used for the output of the model
+    '''
+    
+    while True:
+        # Randomly select a set of example indices
+        example_indices = random.choices(range(ins.shape[0]), k=batch_size)
+        
+        # The generator will produce a pair of return values: one for inputs and one for outputs
+        yield({input_name: ins[example_indices,:,:,:]},
+             {output_name: outs[example_indices,:]})
+        
+</PRE>
+<P>
+
+Then, model fitting looks like this:
+<PRE>
+    # Training generator (only used for training data!)
+    generator = training_set_generator_images(ins, outs, batch_size=args.batch)
+    
+    # Learn
+    history = model.fit(x = generator,
+                        epochs=args.epochs,
+                        steps_per_epoch=2,
+                        verbose=args.verbose>=2,
+                        validation_data=(ins_validation, outs_validation), 
+                        callbacks=[early_stopping_cb])
+</PRE>
+<P>
+
+Notes:
+<UL>
+  <LI> <B>steps_per_epoch:</B> number of gradient descent steps to
+       take for each epoch.  A new minibatch is produced for each
+       epoch (this is done in parallel in a separate thread).
+       <P>
+
+</UL>
+
+<P><HR><P>
+
+
+<H2>Hints / Notes</H2>
+<UL>
+  <LI> Start small: get the pipeline working first on a small,
+       feasible problem (e.g., distinguish two different objects from
+       a couple of conditions; validate on different images of the
+       same objects/conditions).
+       <P>
+
+  <LI> For debugging purposes, it can be useful to examine the
+       state of the early processing layers. We provided code for
+       this in the CNN example in class.
+       <P>
+
+  <LI> We use a general function for creating networks that takes as
+       input a set of parameters that define the configuration of the
+       convolutional layers and dense layers.  By changing these
+       parameters, we can even change the number of layers.  This makes
+       it much easier to try a variety of things without having to
+       re-implement or copy a lot of code.
+       <P>
+
+
+  <LI> We have done some examples with argParse. We suggest that you
+       make use of this facility.  We have a set up where you can specify
+       all of the key details of the architecture at the command line.
+       <P>
+
+  <LI> Remember to check your model summary to make sure that it
+       matches your expectations
+       <P>
+       
+  <LI> If your model only requires 100-200 epochs of training, then
+       you might be over-fitting
+       <P>
+
+  <LI> For the deeper models, expect to spend many epochs on the flat
+       region of the error surface.  We have found that a high
+       patience is necessary
+<P>
+
+  <LI> Before executing on the supercomputer, look carefully at your
+       memory usage (our big model requires almost 10GB of memory)
+       <P>
+
+</UL>
+
+<P><HR><P>
+
+<H2>What to Hand In</H2>
+
+Hand in your notebook containing all of your code + the PDF export of
+the code.  The PDF file must include:
+
+<UL>
+  <LI> Code for generating and training the network.  Some useful unix
+       command line programs:
+       <UL>
+	 <LI> <B>enscript:</B> translate code (e.g., py files) into postscript files
+	 <LI> <B>ps2pdf:</B>  translate postscript files into pdf files
+	 <LI> <B>pdfunite:</B> merge several pdf files together
+       </UL>
+       <P>
+  <LI> Figures described above
+       <P>
+  <LI> A report of the mean multiclass AUC for each of the two architectures
+       <P>
+  <LI> Your batch files used to run the experiments for your shallow and deep networks.
+
+</UL>
+
+
+
+<H2>Grades</H2>
+
+<UL>
+  <LI> 50 pts: Model generation code.  Is it correct?  clean? documented?
+       <P>
+       
+  <LI> 25 pts: Shallow model figures and performance 
+      <P>
+
+  <LI> 25 pts: Deep model figures and performance.  Note that for this
+       to count fully you must have a mean multiclass AUC of at least 0.80 for
+       the validation data set for at least one model.
+      
+       <P>
+  <LI> 10 pts: You solved the bonus problem of achieving average of 0.85 on the
+       validation data set with one of your models across the five rotations.
+       <P>
+
+</UL>
+
+<P><HR><P>
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Sat Mar 13 02:50:39 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
