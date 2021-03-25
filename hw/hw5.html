@@ -1,0 +1,133 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW5</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW5: Complex Convolutional Neural Networks</H1>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline: Thursday, April 8th @11:59pm.
+       <P>
+       
+  <LI> Hand-in procedure: submit a pdf to Gradescope
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, Keras and Tensorflow is encouraged, sharing
+       solution-specific code is inappropriate.  Likewise, downloading
+       solution-specific code is not allowed. 
+       <P>
+       
+  <LI> Do not submit MSWord documents.<P>
+
+</UL>
+
+<H2>Problem</H2>
+
+Our objective with this homework is to explore non-serial deep network
+architectures, constructed using the Keras Model API.
+
+<UL>
+  <LI>  The data set and classification problem is the same as in HW 4.
+       <P>
+
+  <LI> Implement one more more non-serial deep networks.  Possibilities include:
+       <UL>
+	 <LI> An inception-style network.
+	      <P>
+
+	 <LI> A network with more than one input image at the same
+	      time (e.g., two input images separated by 10 time
+	      steps).
+	      <P>
+
+	 <LI> A network with K input images, each processed by the
+	      same single-image recognizer and the outputs combined
+	      using a recurrent neural network.
+	      <P>
+
+       </UL>
+       <P>
+</UL>
+
+
+<P><HR><P>
+
+
+<H2>Hints / Notes</H2>
+<UL>
+
+  <LI> For networks with multiple input images, you will need to alter
+       either the data loading process or the generator process.   The
+       key is to make sure that all of the images that are presented
+       as part of one example all come from the same object.  It
+       is fine to share this code with the rest of the class if you
+       have a nice solution.
+       
+<P>
+
+
+</UL>
+
+<P><HR><P>
+
+<H2>What to Hand In</H2>
+
+Hand in a PDF file that contains:
+
+<UL>
+  <LI> Code for generating and training the network.  Some useful UNIX
+       command line programs:
+       <UL>
+	 <LI> <B>enscript:</B> translate code (e.g., py files) into postscript files
+	 <LI> <B>ps2pdf:</B>  translate postscript files into pdf files
+	 <LI> <B>pdfunite:</B> merge several pdf files together
+       </UL>
+       <P>
+  <LI> The same learning curve and confusion matrix figures as
+       produced in HW 4
+
+       <P>
+  <LI> A report of the mean multi-class AUC
+       <P>
+  <LI> Your batch files used to run the experiments for your shallow and deep networks
+       <P>
+  <LI> A statistical test of the mean validation set performance of your
+       best model from HW4 and your model for this assignment
+       <P>
+
+
+</UL>
+
+
+
+<H2>Grades</H2>
+
+<UL>
+  <LI> 50 pts: Model generation code.  Is it correct?  clean? documented?
+       <P>
+       
+  <LI> 50 pts: Model figures and performance.  To achieve full credit
+       you must show a statistically significant improvement over your
+       best HW4 model.
+      <P>
+       
+  <LI> 10 pts: You solved the bonus problem of achieving average of 0.9 on the
+       validation data set your model across the five rotations, or
+       you beat the best of the TA/instructor solutions
+       <P>
+
+</UL>
+
+<P><HR><P>
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Wed Mar 24 23:00:04 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
