@@ -1,0 +1,244 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW6</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW6: Recurrent Neural Networks and Timeseries Data</H1>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline:
+       <UL>
+	 <LI> Expected completion: Tuesday, April 20th @11:59pm.
+	 <LI> Deadline: Thursday, April 22nd @11:59pm.  
+       </UL>
+       <P>
+       
+  <LI> Hand-in procedure: submit a pdf to Gradescope
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, Keras and Tensorflow is encouraged, sharing
+       solution-specific code is inappropriate.  Likewise, downloading
+       solution-specific code is not allowed. 
+       <P>
+       
+  <LI> Do not submit MSWord documents.<P>
+
+</UL>
+
+<H2>The Problem</H2>
+
+Peptides are short chains of amino acids that perform a wide range of
+biological functions, depending on the specific sequence of amino
+acids.  Understanding how amino acids interact with other molecules is
+key to understanding the mechanisms of genetic diseases and to
+constructing therapies to address these diseases.
+
+<P>
+
+One form of interaction is the question of how well a peptide binds to
+a specific molecule (this is known as <EM>binding affinity</EM>).  For
+this assignment, we will use a data set that includes a measure of
+binding affinity for a large number of peptides toward two molecules,
+known as HLA-DRB1*13:01 and HLA-DRB1*15:01.  Our goal is to predict
+the binding affinity for novel peptides toward these molecules.  
+
+<P>
+
+<H3>Amino Acids</H3>
+
+A total of 22 amino acids make up the building blocks for all peptides
+and proteins.  The following table gives the names and one-letter
+codes used to represent these amino acids:
+<P>
+
+<IMG SRC="http://www.supporting-cdkl5.co.uk/resources/AminoAcidsAbs.gif">
+<P>
+
+<H3>Data Set</H3>
+
+The <A
+HREF="http://www.cbs.dtu.dk/suppl/immunology/NetMHCIIpan-3.2/">data
+set</A> is available in the git repository in a set of CSV 
+files.  The data are already partitioned into five independent folds
+of training and validation data.  For the purposes of this assignment,
+you should preserve this partition.  Also, you should only use the
+HLA-DRB1*15:01 molecule (look for files containing "1501").
+
+<P>
+Each row in the CSV files contains two columns: a string representing
+the sequence of amino acids and a measure of binding affinity.  Here
+is an example:
+<P>
+
+<PRE>
+DLDKKETVWHLEE,0
+DKSKPKVYQWFDL,0
+HYTVDKSKPKVYQ,0
+KSKPKVYQWFDLR,0
+LHYTVDKSKPKVY,0
+TVDKSKPKVYQWF,0
+VDKSKPKVYQWFD,0
+YTVDKSKPKVYQW,0
+ADVILPIGTRSVETD,0.646144
+AFKPVLVDEGRKVAI,0.57075
+AGLKTNDRKWCFEGP,0.615622
+AHLAEENEGDNACKR,0
+ALYEKKLALYLLLAL,0.610019
+ANGKTLGEVWKRELN,0.495407
+</PRE>
+<P>
+
+Note that different rows contain different numbers of amino acids.
+
+<P>
+
+The binding affinity is encoded on a log scale and ranges between 0
+and 1.  Peptides with affinities at or above 0.426 are considered
+more likely than not to bind to the molecule in question, whereas
+affinities below this threshold are considered less likely to bind.
+
+<H2>Deep Learning Experiment</H2>
+
+Objective: Create a recurrent neural network that predicts binding
+affinity as a function of the amino acid string.
+
+<UL>
+  <LI> You will need to load the CSV files and create the
+       tensorflow-compatible data sets.  I suggest that you:
+       <UL>
+	 <LI> Use a character-based encoding layer for the strings
+	      (this is effectively a 1-hot encoding for each of the
+	      characters in the string without the overhead of so many
+	      zeros; see the RNN text preprocessing section in the
+	      book)
+	 <LI> "Zero-pad" the strings that are short with a special
+	      character
+
+       </UL>
+<P>
+  <LI> Follow the encoding layer with one or more trainable embedding
+       layer(s).
+       <P>
+  <LI> Use your favorite RNN module
+       <P>
+  <LI> Use return_sequences=False
+       <P>
+  <LI> Use one or more dense layers to predict the affinity measure.
+       Think about what the appropriate non-linearity is for the
+       output unit
+       <P>
+       
+</UL>
+
+<H3>Performance Reporting</H3>
+
+Once you have selected a reasonable architecture and set of
+hyper-parameters, produce the following figures:
+
+<OL>
+  <LI> AUC as a function of epoch for each of the training folds (so,
+       5 curves)
+       <P>
+
+  <LI> AUC as a function of epoch for each of the validation folds
+       <P>
+
+  <LI> Accuracy as a function of epoch for each of the training
+       folds.  Note: using tf.keras.metrics.BinaryAccuracy() as a
+       metric will allow you to set the threshold of 0.426
+       <P>
+
+  <LI> Accuracy as a function of epoch for each of the validation folds
+       <P>
+
+</OL>
+
+In addition, report the following:
+<UL>
+  <LI> Report the final, average AUC for both the training and
+       validation sets.  An average validation AUC of 0.8 is doing
+       well
+       <P>
+
+  <LI> Report the final, average accuracy for both the training and
+       validation sets.  An average validation accuracy of 0.84 is
+       doing well
+</UL>
+
+
+<P><HR><P>
+
+
+
+
+<H2>What to Hand In</H2>
+
+Hand in a PDF file that contains:
+
+<UL>
+  <LI> Code for generating and training the network.  Some useful UNIX
+       command line programs:
+       <UL>
+	 <LI> <B>enscript:</B> translate code (e.g., py files) into postscript files
+	 <LI> <B>ps2pdf:</B>  translate postscript files into pdf files
+	 <LI> <B>pdfunite:</B> merge several pdf files together
+       </UL>
+       <P>
+  <LI> The above figures
+
+       <P>
+       
+  <LI> The final metrics (note that this can be with respect to the
+       best performing epoch, as identified by EarlyStopping)
+
+       <P>
+
+
+
+</UL>
+
+
+
+<H2>Grades</H2>
+
+<UL>
+  <LI> 50 pts: Model generation code.  Is it correct?  clean? documented?
+       <P>
+       
+  <LI> 50 pts: Model figures and performance.  
+      <P>
+       
+  <LI> 10 pts: An average validation AUC of 0.82 or better
+       <P>
+
+</UL>
+
+<H2>References</H2>
+
+<UL>
+  <LI> Kamilla Kjærgaard Jensen, Massimo Andreatta, Paolo Marcatili,
+       Søren Buus, Jason A. Greenbaum, Zhen Yan, Alessandro Sette,
+       Bjoern Peters and Morten Nielsen (2018)
+       <A
+       HREF="https://onlinelibrary.wiley.com/doi/full/10.1111/imm.12889">Improved methods for predicting peptide binding affinity to MHC class II molecules</A>, Immunology, <A HREF="https://doi.org/10.1111/imm.12889">https://doi.org/10.1111/imm.12889</A>
+<P>
+
+  <LI> <A HREF="http://www.cbs.dtu.dk/suppl/immunology/NetMHCIIpan-3.2/">Data
+set</A>
+       <P>
+
+</UL>
+
+<P><HR><P>
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Mon Apr  5 00:32:22 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
