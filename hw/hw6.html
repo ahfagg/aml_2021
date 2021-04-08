@@ -100,6 +100,7 @@ and 1.  Peptides with affinities at or above 0.426 are considered
 more likely than not to bind to the molecule in question, whereas
 affinities below this threshold are considered less likely to bind.
 
+
 <H2>Deep Learning Experiment</H2>
 
 Objective: Create a recurrent neural network that predicts binding
@@ -158,16 +159,72 @@ hyper-parameters, produce the following figures:
 
 In addition, report the following:
 <UL>
-  <LI> Report the final, average AUC for both the training and
-       validation sets.  An average validation AUC of 0.8 is doing
+  <LI> Report the average AUC (across the folds) for the training,
+       validation and test sets.  An average validation AUC of 0.8 is doing
        well
        <P>
 
-  <LI> Report the final, average accuracy for both the training and
-       validation sets.  An average validation accuracy of 0.84 is
+  <LI> Report the average accuracy (across the folds) for the training,
+       validation and test sets.  An average validation accuracy of 0.84 is
        doing well
 </UL>
 
+<P><HR><P>
+
+<H2>Provided Code</H2>
+In the git repository:
+<UL>
+  <LI> hla_support.py: <B>prepare_data_set()</B> will load and prepare a data set for training/validation/testing
+       <UL>
+	 <LI> The "ins" are token indices (not a 1-hot encoding).
+<P>
+	 <LI> This function splits the training data set into a
+	      training and validation data set.  Leave the seed and
+	      the size at their default values (this way, we can
+	      better compare our results)
+	      <P>
+	 <LI> Hyper-parameter searches should only be done using the
+	      performance of the validation data set 
+<P>
+	 <LI> You can evaluate the performance of the model on the
+	      test set using:<P>
+
+<PRE>
+model.evaluate(ins_test, outs_test)
+</PRE>
+	      <P>
+	      <B>BUT: only look at these values after you have selected your favorite hyper-parameters</B><P>
+
+
+	 <LI> Use
+	      a <B>tf.keras.layers.Embedding</B> as the first layer of
+	      your network - it will properly handle the token indices
+<P>
+       </UL>
+       <P>
+  <LI> metrics_binarized.py: Useful metrics
+       <UL>
+	 <LI> The "outs" are log affinity measures.  However, any
+	      peptide with an affinity at or above 0.426 is considered
+	      as "bindable" to the allele in question.
+<P>
+
+	 <LI> You may formulate your problem entirely in terms of a
+	      binary prediction problem, in which case you will
+	      convert the "outs" to binary vectors and use
+	      cross-entropy as your loss 
+<P>
+
+	 <LI> You may also choose to predict the log affinity
+	      directly, in which case you might use mse as your loss.
+	      However, in order to report Accuracy or AUC, you will
+	      need to binarize the true values of the outs.  The
+	      provided wrapper classes do just this for you
+	      <P>
+
+	      
+       </UL>
+</UL>
 
 <P><HR><P>
 
@@ -237,7 +294,7 @@ set</A>
 
 <FONT SIZE="-2">
 <!-- hhmts start -->
-Last modified: Mon Apr  5 00:32:22 2021
+Last modified: Wed Apr  7 21:54:42 2021
 <!-- hhmts end -->
 </FONT>
 </BODY>
