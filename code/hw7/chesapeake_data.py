@@ -34,9 +34,12 @@ def load_file(file_base, fname):
     # Set all class 15 to class 0
     np.equal(outs, 15, where=0)
     
-    images = dat[0, :, :, 0:9]/255.0
+    # Image data
+    images = dat[0, :, :, 0:8]/255.0
+    
+    # Landsat data
     # Unclear what the max is over the data set, but at least this gets us into the ballpark
-    landsat = dat[0, :, :, 10:29]/4000.0
+    landsat = dat[0, :, :, 10:28]/4000.0
     
     # Building mask
     mask = dat[0, :, :, 28]
