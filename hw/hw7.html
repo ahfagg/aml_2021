@@ -1,0 +1,271 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW7</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW7: Semantic Labeling</H1>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline:
+       <UL>
+	 <LI> Expected completion: Friday, April 30th @11:59pm.
+	 <LI> Deadline: Monday, May 3rd @11:59pm.  
+       </UL>
+       <P>
+       
+  <LI> Hand-in procedure: submit a pdf to Gradescope
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, Keras and Tensorflow is encouraged, sharing
+       solution-specific code is inappropriate.  Likewise, downloading
+       solution-specific code is not allowed. 
+       <P>
+       
+  <LI> Do not submit MSWord documents.<P>
+
+</UL>
+
+<H2>Data Set</H2>
+
+The Chesapeake Watershed data set is derived from satellite imagery
+over all of the US states that are part of the Chesapeake Bay
+watershed system.  We are using the <B>patches</B> part of the data
+set.  Each patch is a 256 x 256 image with 29 channels, in which each
+pixel corresponds to a 1m x 1m area of space.  Some of these
+channels are visible light channels (RGB), while others encode surface
+reflectivity at different frequencies.  In addition, each pixel is
+labeled as being one of:
+<UL>
+  <LI> 1 = water
+  <LI> 2 = tree canopy / forest
+  <LI> 3 = low vegetation / field
+  <LI> 4 = barren land
+  <LI> 5 = impervious (other)
+  <LI> 6 = impervious (road)
+  <LI> 15 = no data [NOTE: this is remapped by our loader to class zero]
+</UL>
+
+<P>
+Here is an example of the RGB image of one patch and the corresponding pixel labels: <BR>
+<IMG SRC="patch.png">
+<IMG SRC="labels.png">
+<P>
+
+Notes:
+
+<UL>
+  <LI> <A HREF="http://lila.science/datasets/chesapeakelandcover">
+       Detailed description of the data set</A>
+       <P>
+
+</UL>
+
+<H3>Data Organization</H3>
+All of the data are located on the supercomputer in:
+<B>/scratch/fagg/chesapeake.</B>  Within this directory, there are both 
+<B>train</B> and <B>valid</B> directories.  Each of these contain
+directories F0 ... F9 (folds 0 to 9).  Each training fold is composed
+of 5000 patches (you will need at least 40GB of RAM to load one fold;
+I don't recommend doing this on your home machine).
+
+<P>
+Local testing: the file <B>/scratch/fagg/chesapeake_F0.tar.gz</B>
+contains the data for training fold 0 (it is 3GB compressed).
+<P>
+
+We will use the <B>valid</B> data set as a proper test set.  You
+should sample from the <B>train</B> directory for a proper validation
+data set.
+
+<P>
+
+Within each fold directory, the files are of the form:
+<B>SOME_NON_UNIQUE_HEADER-YYY.npz</B>.  Where YYY is 0 ... 499 (all
+possible YYYs occur in each fold directory.  There are multiple files
+with each YYY number in each directory (100 in the training fold
+directories, to be precise).  Because there are 5000 patches in each
+training fold directory, we will generally be loading a subset of one
+fold of these data at any one time.
+
+<P>
+
+
+<H3>Data Access</H3>
+
+In the git repository, we provide a loader for files in one directory:
+
+<PRE>
+ins, mask, outs, weights = load_files_from_dir(file_base, filt)
+</PRE>
+where:
+<UL>
+  <LI> <B>file_base</B> is the directory
+  <LI> <B>filt</B> is a regular expression filter that specifies which
+       numbers to include.
+       <UL>
+	 <LI> '-[1234]?' will load all 2-digit numbers starting with
+	      1, 2, 3 or 4.  For a training fold, this corresponds to
+	      200 examples (enough to get started with).
+	 <LI> '-1[1234]?' will load all 3-digit numbers starting with
+	      1 and having 1, 2, 3 or 4 as the second digit (also 200
+	      examples).
+	 <LI> '-*' will load all 5000 examples.
+	      
+       </UL>
+</UL>
+
+Of the return values, <B>ins</B> and <B>outs</B> are
+properly-formatted tensors for training / evaluating.  ins is shape
+(examples, rows, cols, chans) and outs is shape (examples, rows,
+cols).  Note that outs is an integer tensor that contains the class ID
+of each pixel (values 0 ... 6) (<B>it is not one-hot encoded for
+efficiency reasons</B>).
+
+
+<H2>The Problem</H2>
+
+Create an image-to-image translator that does semantic labeling of the
+images.
+
+<P>
+
+Details:
+<UL>
+  <LI> Your network output should be shape (examples, rows, cols,
+       class), where the sum of all class outputs for a single pixel
+       is 1 (i.e., we are using a softmax here).
+<P>
+  <LI> Use <B>tf.keras.losses.SparseCategoricalCrossentropy</B> as
+       your loss function.  This will properly translate between your
+       one-output per class per pixel to the <B>outs</B> that have
+       just one class label for each pixel.
+       <P>
+
+  <LI> Use <B>tf.keras.metrics.SparseCategoricalAccuracy</B> as an
+       evaluation metric.  Because of the class imbalance, a model
+       that predicts the majority class will have an accuracy of ~0.72
+       <P>
+
+  <LI> Try using a sequential-style model, as well as a U-net model.
+       <P>
+
+</UL>
+
+
+<H2>Deep Learning Experiment</H2>
+
+For what you think is your best performing model type (and
+hyperparameters), perform 5 different experiments:
+<UL>
+  <LI> Use '-*[01234]' for training (train files)
+  <LI> Use '-*[89]' for validation (train files)
+  <LI> Use '-*' for testing (valid files)
+</UL>
+<P>
+
+The five different experiments will use folds F0 ... F4 (so, no
+overlap in training data sets; likewise for the validation and testing
+datasets).
+
+<P>
+
+(details are subject to change)
+<P>
+
+<H3>Performance Reporting</H3>
+
+<OL>
+  <LI> Figure: validation accuracy as a function of training epoch.
+       Show 5 curves.
+       <P>
+
+  <LI> 5 figures: for each final model, evaluate using the test data set
+       and generate a confusion matrix for each of the models.
+       <P>
+  <LI> Metric: average test accuracy across the models
+       <P>
+
+</OL>
+
+<P><HR><P>
+
+
+
+
+<H2>What to Hand In</H2>
+
+Hand in a PDF file that contains:
+
+<UL>
+  <LI> Code for generating and training the network.  Some useful UNIX
+       command line programs:
+       <UL>
+	 <LI> <B>enscript:</B> translate code (e.g., py files) into postscript files
+	 <LI> <B>ps2pdf:</B>  translate postscript files into pdf files
+	 <LI> <B>pdfunite:</B> merge several pdf files together
+       </UL>
+       <P>
+  <LI> The above figures
+
+       <P>
+       
+  <LI> The final metrics (note that this can be with respect to the
+       best performing epoch, as identified by EarlyStopping)
+
+       <P>
+
+
+
+</UL>
+
+
+
+<H2>Grades</H2>
+
+<UL>
+  <LI> 50 pts: Model generation code.  Is it correct?  clean? documented?
+       <P>
+       
+  <LI> 50 pts: Model figures and performance.  We expect at least
+       something interesting in the confusion matrices and an average
+       test accuracy of 0.85.
+      <P>
+       
+  <LI> 10 pts: An average test accuracy of 0.9
+       <P>
+
+</UL>
+
+<H2>References</H2>
+
+<UL>
+  <LI> <A HREF="https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html">A Beginner's Guide to Deep Semantic Segmentation</A>
+       <P>
+
+</UL>
+
+<H2>Hints</H2>
+<UL>
+  <LI> Start small.  Get the architecture working before throwing lots
+       of data at it.<P>
+
+  <LI> Write generic code.<P>
+
+  <LI> Start early.  Expect the learning process for these models to
+       exceed anything else that we have done in the class.<P>
+
+</UL>
+
+<P><HR><P>
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Thu Apr 22 10:51:24 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
