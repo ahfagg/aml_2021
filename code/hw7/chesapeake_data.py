@@ -45,6 +45,11 @@ def load_file(file_base, fname):
     mask = dat[0, :, :, 28]
     
     ins = np.concatenate([images, landsat], axis=2)
+    
+    assert not np.isnan(ins).any(), "File contains NaNs (%s)"%(fname)
+    assert np.min(outs) >= 0, "Labels out of bounds (%s, %d)"%(fname, np.min(outs))
+    assert np.max(outs) < 7, "Labels out of bounds (%s, %d)"%(fname, np.max(outs))
+    
     return ins, mask, outs, weights
 
     
@@ -74,6 +79,8 @@ def load_file_set(file_base, fnames):
         outs_all.append(outs)
         weights_all.append(weights)
 
+    assert len(ins_all) > 0, "Nothing to load"
+    
     # Compute shape for outputs
     sh = ins_all[0].shape
     sh_multi = (1, sh[0], sh[1], sh[2])
@@ -113,7 +120,15 @@ def load_files_from_dir(file_base, filt='-[1234]?'):
             
     '''
     files = [f for f in os.listdir(file_base) if re.match(r'.*%s.npz'%filt, f)]
-    return load_file_set(file_base, files)
+    ins, mask, outs, weights = load_file_set(file_base, files)
+    
+    assert np.min(outs) >= 0, "Negative pixel class labels are not allowed"
+    assert np.max(outs) < 7, "Illegal pixel class label (%d)"%(np.max(outs))
+    
+    
+    print("Examples loaded:", ins.shape[0])
+    
+    return ins, mask, outs, weights 
 
 
 def compute_class_weights(outs, div=100):
@@ -139,3 +154,44 @@ def compute_class_weights(outs, div=100):
     for i,w in enumerate(weights):
         out[i] = w
     return hist, out
+
+def pixel_class_to_image_class(outs):
+    '''
+    Convert pixel-level labels into class labels.  The classes are:
+    0: water present
+    1: Low vegetation present
+    2: Barren land present
+    3: Impervious-other present
+    4: Impervious-road present 
+    
+    Note that the image-level classes are independent from one-another, so
+    this becomes a binary classification problem (5 simultaneous binary
+    classification problems)
+    
+    :param outs: Pixel-level classification (examples x rows x cols)
+    :return: Image-level classification (examples x 5)
+    
+    Notes:
+    - Water seems to be low frequency
+    - Low vegetation is relatively high frequency
+    - Barren land is very low frequency
+    - The two types of impervious surfaces are highly correlated 
+    '''
+    sh = outs.shape
+    ret = np.zeros((sh[0], 5))
+    for i in range(outs.shape[0]):
+        hist = np.bincount(outs[i,:,:].flatten())
+        ret[i,0] = (hist[1] > 50)
+        if(len(hist) >= 4 and hist[3] > 1000):
+            ret[i,1] = 1
+        if(len(hist) >= 5 and hist[4] > 50):
+            ret[i,2] = 1
+        if(len(hist) >= 6 and hist[5] > 500):
+            ret[i,3] = 1
+        if(len(hist) >= 7 and hist[6] > 500):
+            ret[i,4] = 1
+            
+            
+    labels=['water', 'low veg', 'barren', 'impervious', 'road']
+    
+    return ret, labels

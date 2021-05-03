@@ -1,0 +1,223 @@
+<HTML>
+<HEAD>
+<TITLE>CS 5043: HW8</TITLE>
+</HEAD>
+
+<BODY>
+<H1>CS 5043: HW8: Explainable Deep Learning</H1>
+
+Assignment notes:
+<UL>
+  <LI>  Deadline:
+       <UL>
+	 <LI> Expected completion: Friday, May 7th @11:59pm.
+       </UL>
+       <P>
+       
+  <LI> Hand-in procedure: submit a pdf to Gradescope
+       <P>
+       
+  <LI> This work is to be done on your own.  While general discussion
+       about Python, Keras and Tensorflow is encouraged, sharing
+       solution-specific code is inappropriate.  Likewise, downloading
+       solution-specific code is not allowed. 
+       <P>
+       
+  <LI> Do not submit MSWord documents.<P>
+
+</UL>
+
+<H2>Objective</H2>
+
+Deep learning tools provide a great opportunity to create
+sophisticated models for making predictions across a wide range of
+domains.  Their power comes, in part, from their large number of
+degrees-of-freedom (parameters).  But, this property can also mean
+that the resulting models make incorrect decisions, or make correct
+decisions, but for the wrong reasons.  As practitioners, it is
+important for us to always look carefully at how our models perform,
+not only in the aggregate, but also on a case-by-case basis.
+
+<p>
+
+Our objective for this homework is to use <B>explainable deep
+learning</B> techniques to analyze a couple of image classification
+models that we train using the Chesapeake Watershed data set.  Our goal
+is to better understand how these models make their decisions and to
+evaluate the appropriateness of the learned models.
+
+<h2>Data Set</h2>
+
+We will use F0 of the Chesapeake Watershed data set.  The loader code
+from HW 7 has been augmented with an additional function:
+
+<PRE>
+[new_outs, labels] = pixel_class_to_image_class(outs)
+</PRE>
+where:
+<UL>
+  <LI> outs is a pixel-level tensor (examples x r x c) that is
+       returned from our loader
+       <P>
+
+  <LI> new_outs is an example-level tensor (examples x classes) that
+       encodes binary class labels for each image.  Each class is independent
+       of one-another.  The classes are as follows:
+       <UL>
+	 <LI> Has water
+	 <LI> Has low vegetation
+	 <LI> Has barren
+	 <LI> Has impervious (other)
+	 <LI> Has road
+       </UL>
+       <P>
+       Note: the following code will translate the new_outs into a
+       count of the number of examples in each class:
+<PRE>       
+np.sum(new-outs, axis=0)
+</PRE>       
+       <P>
+
+
+  <LI> labels is an array of strings that describe the classes
+</UL>
+
+<H2>Models</H2>
+
+Create and train two CNN-based classification models:
+<UL>
+  <LI> Single output: has road or not
+  <LI> Five outputs (yes, all of them)
+</UL>
+
+<P>
+Notes:
+<UL>
+  <LI> Use a sigmoid as the output of the last layer (don't use
+       softmax, as that implies exclusivity across the outputs)
+  <LI> Use binary_crossentropy for loss
+  <LI> Use binary_accuracy for your primary metric
+  <LI> You will need more training examples than for HW 7 (at least
+       1000)
+  <LI> Expect training to be a lot faster than with HW 7
+  <LI> It is important that your validation performance be higher than
+       the background accuracy (accuracy of making the best possible
+       constant output)
+</UL>
+
+<H2>Visualization</H2>
+
+We will be using the 
+<A HREF="https://pypi.org/project/tf-keras-vis/">tf-keras-vis</A>
+package to visualize the behavior of your network under various
+conditions.  The package has useful documentation, including example
+code.
+
+<P>
+
+Pick a set of 5-6 representative images from the validation data set
+that we will use to analyze the models.  These images should have
+examples of each of the five classes.
+
+<P>
+
+For each of the models, do the following:
+<UL>
+  <LI> Use one of the saliency techniques to examine the pixel-level
+       saliency for each of the classes and example images.   If there
+       are 6 images, then you will have a grid of 5 x 6 saliency
+       images.  Include in the title of each image the predicted
+       probability for that class in that image and the true label for
+       that class in that image
+       <P>
+  <LI> Do the same with one of the GradCAM methods
+       <P>
+
+  <LI> Use either a dense layer or convolutional layer tool to
+       visualize what a set of 5 neurons / filters encode for the same
+       set of images.
+
+       <P>
+
+  <LI> Note: always use 'clone=True' so you can re-use your learned
+       models
+       <P>
+</UL>
+
+
+
+<H2>What to Hand In</H2>
+
+Hand in a PDF file that contains:
+
+<UL>
+  <LI> Code for generating and training the network.  Some useful UNIX
+       command line programs:
+       <UL>
+	 <LI> <B>enscript:</B> translate code (e.g., py files) into postscript files
+	 <LI> <B>ps2pdf:</B>  translate postscript files into pdf files
+	 <LI> <B>pdfunite:</B> merge several pdf files together
+       </UL>
+       <P>
+  <LI> The above figures
+
+       <P>
+       
+  <LI> A reflection on what you learned about the different methods
+       and what they told you about your models.
+
+       <P>
+
+
+
+</UL>
+
+
+
+<H2>Grades</H2>
+
+<UL>
+  <LI> 30 pts: Model generation / visualization code.  Is it correct?
+       clean? documented? 
+       <P>
+       
+  <LI> 40 pts: Visualization results
+      <P>
+       
+  <LI> 30 pts: Reflection
+       <P>
+
+</UL>
+
+<!--
+<H2>References</H2>
+
+<UL>
+  <LI> <A HREF="https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html">A Beginner's Guide to Deep Semantic Segmentation</A>
+       <P>
+
+</UL>
+
+<H2>Hints</H2>
+<UL>
+  <LI> Start small.  Get the architecture working before throwing lots
+       of data at it.<P>
+
+  <LI> Write generic code.<P>
+
+  <LI> Start early.  Expect the learning process for these models to
+       exceed anything else that we have done in the class.<P>
+
+</UL>
+-->
+
+<P><HR><P>
+<EM><A HREF="http://www.cs.ou.edu/~fagg">andrewhfagg -- gmail.com</a></EM><P>
+
+<FONT SIZE="-2">
+<!-- hhmts start -->
+Last modified: Mon May  3 18:10:57 2021
+<!-- hhmts end -->
+</FONT>
+</BODY>
+</HTML>
